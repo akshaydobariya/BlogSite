@@ -26,6 +26,10 @@ const Blog = () => {
       {blogPosts?.map((post) => (
         <div key={post.id}>
           <h3>{post.title}</h3>
+          <img
+            src={`http://localhost:14648/images/${post.imagePath}`}
+            alt="..."
+          />
           <p>
             Posted b<strong> {post.userName} </strong>on{" "}
             <strong>{formatDate(post.date)}</strong>
