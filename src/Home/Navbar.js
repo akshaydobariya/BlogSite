@@ -60,13 +60,18 @@ const Navbar = () => {
               </>
             )}
             {email != null && (
-              <Link
-                to="/"
-                className="btn btn-link px-3 me-2"
-                onClick={() => dispatch(logout())}
-              >
-                logout
-              </Link>
+              <>
+                <Link to="/myBlog" btn btn-link px-3 me-2>
+                  MyBlog
+                </Link>
+                <Link
+                  to="/"
+                  className="btn btn-link px-3 me-2"
+                  onClick={() => dispatch(logout())}
+                >
+                  logout
+                </Link>
+              </>
             )}
           </div>
         </div>
