@@ -21,7 +21,7 @@ const AddBlog = () => {
         description: "",
         email: email,
       },
-      onSubmit: (values) => {
+      onSubmit: (values, action) => {
         const formData = new FormData();
         formData.append("title", values.title);
         formData.append("userName", values.userName);
@@ -39,6 +39,7 @@ const AddBlog = () => {
               console.log(response.data);
               alert("Blog Update Successfully");
               dispatch(clearSelectedBlog());
+              action.resetForm();
             })
             .catch((error) => {
               console.error(error);
@@ -50,6 +51,7 @@ const AddBlog = () => {
             .then((response) => {
               console.log(response.data);
               alert("Blog Added Successfully");
+              action.resetForm();
             })
             .catch((error) => {
               console.error(error);
