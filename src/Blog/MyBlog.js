@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useHistory, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddBlogButton from "../Blog/AddBlogButton";
 import axios from "axios";
 import { setSelectedBlog } from "../Feature/LoginSlice";
@@ -9,17 +9,21 @@ const MyBlog = () => {
   const [blogPosts, setBlogPosts] = useState([]);
   const { email } = useSelector((state) => state.login);
   const dispatch = useDispatch();
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const apiUrl = `http://localhost:14648/api/Blog/MyBlogs?email=${encodeURIComponent(
-      email
-    )}`;
+  useEffect(
+    () => {
+      const apiUrl = `http://localhost:14648/api/Blog/MyBlogs?email=${encodeURIComponent(
+        email
+      )}`;
 
-    axios.get(apiUrl).then((response) => {
-      setBlogPosts(response.data);
-    });
-  }, [email]);
+      axios.get(apiUrl).then((response) => {
+        setBlogPosts(response.data);
+      });
+    },
+    [email],
+    [blogPosts]
+  );
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -31,7 +35,19 @@ const MyBlog = () => {
 
   const handleEdit = (blog) => {
     dispatch(setSelectedBlog(blog));
-    nevigate("/addBlog");
+    navigate("/addBlog");
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const apiUrl = `http://localhost:14648/api/Blog/DeleteBlog?id=${id}`;
+      const response = await axios.delete(apiUrl);
+      console.log(response.data); // Process the response data as needed
+      alert("Blog deleted successfully.");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete blog.");
+    }
   };
 
   return (
@@ -52,13 +68,21 @@ const MyBlog = () => {
               src={`http://localhost:14648/images/${post.imagePath}`}
               alt="Blog Post"
               className="logo-image"
+              height={80}
             />
             <p className="post-description">{post.description}</p>
           </div>
-          <hr />
           <button className="btn btn-primary" onClick={() => handleEdit(post)}>
             Edit
           </button>
+
+          <button
+            className="btn btn-danger mx-2"
+            onClick={() => handleDelete(post.id)}
+          >
+            Delete
+          </button>
+          <hr />
         </div>
       ))}
     </div>
