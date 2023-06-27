@@ -1,48 +1,82 @@
 import axios from "axios";
 import { useFormik } from "formik";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../Home/Navbar";
+import { clearSelectedBlog } from "../Feature/LoginSlice";
 
 const AddBlog = () => {
-  const { email } = useSelector((state) => state.login);
+  const { email, selectedBlog } = useSelector((state) => state.login);
   const [selectedFile, setSelectedFile] = useState(null);
+  const dispatch = useDispatch();
 
-  const { values, handleChange, handleBlur, handleSubmit } = useFormik({
-    initialValues: {
-      title: "",
-      userName: "",
-      date: "",
-      category: "",
-      description: "",
-      email: email,
-    },
-    onSubmit: (values) => {
-      const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("userName", values.userName);
-      formData.append("date", values.date);
-      formData.append("category", values.category);
-      formData.append("description", values.description);
-      formData.append("email", values.email);
-      formData.append("image", selectedFile);
+  const { values, handleChange, handleBlur, handleSubmit, setValues } =
+    useFormik({
+      initialValues: {
+        Id: "",
+        title: "",
+        userName: "",
+        date: "",
+        category: "",
+        description: "",
+        email: email,
+      },
+      onSubmit: (values) => {
+        const formData = new FormData();
+        formData.append("title", values.title);
+        formData.append("userName", values.userName);
+        formData.append("date", values.date);
+        formData.append("category", values.category);
+        formData.append("description", values.description);
+        formData.append("email", values.email);
+        formData.append("image", selectedFile);
 
-      axios
-        .post("http://localhost:14648/api/Blog/AddBlogs", formData)
-        .then((response) => {
-          console.log(response.data);
-          alert("Blog Added Successfully");
-        })
-        .catch((error) => {
-          console.error(error);
-          alert("Failed to add blog.");
-        });
-    },
-  });
+        if (selectedBlog != null) {
+          formData.append("Id", values.Id);
+          axios
+            .post("http://localhost:14648/api/Blog/UpdateBlog", formData)
+            .then((response) => {
+              console.log(response.data);
+              alert("Blog Update Successfully");
+              dispatch(clearSelectedBlog());
+            })
+            .catch((error) => {
+              console.error(error);
+              alert("Failed to update blog.");
+            });
+        } else {
+          axios
+            .post("http://localhost:14648/api/Blog/AddBlogs", formData)
+            .then((response) => {
+              console.log(response.data);
+              alert("Blog Added Successfully");
+            })
+            .catch((error) => {
+              console.error(error);
+              alert("Failed to add blog.");
+            });
+        }
+      },
+    });
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
+
+  useEffect(() => {
+    if (selectedBlog) {
+      // Set the form field values with the selected blog data
+      setValues({
+        Id: selectedBlog.id,
+        title: selectedBlog.title,
+        userName: selectedBlog.userName,
+        date: selectedBlog.date,
+        category: selectedBlog.category,
+        description: selectedBlog.description,
+        email: selectedBlog.email,
+      });
+    }
+  }, [selectedBlog, setValues]);
 
   return (
     <>
@@ -51,7 +85,7 @@ const AddBlog = () => {
         <div className="w-25 p-5 rounded bg-white">
           <form onSubmit={handleSubmit}>
             <h3 className="text-danger text-center text-capitalize">
-              Add Blog
+              {selectedBlog ? "Edit Blog" : "Add Blog"}
             </h3>
             <div className="my-3">
               <label htmlFor="title">Blog Title</label>
@@ -130,7 +164,7 @@ const AddBlog = () => {
               />
             </div>
             <button type="submit" className="btn btn-success">
-              Submit
+              {selectedBlog ? "Update" : "Add Blog"}
             </button>
           </form>
         </div>

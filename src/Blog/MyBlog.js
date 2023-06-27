@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useHistory, useNavigate } from "react-router-dom";
 import AddBlogButton from "../Blog/AddBlogButton";
 import axios from "axios";
+import { setSelectedBlog } from "../Feature/LoginSlice";
 
 const MyBlog = () => {
   const [blogPosts, setBlogPosts] = useState([]);
   const { email } = useSelector((state) => state.login);
+  const dispatch = useDispatch();
+  const nevigate = useNavigate();
 
   useEffect(() => {
     const apiUrl = `http://localhost:14648/api/Blog/MyBlogs?email=${encodeURIComponent(
@@ -15,7 +19,7 @@ const MyBlog = () => {
     axios.get(apiUrl).then((response) => {
       setBlogPosts(response.data);
     });
-  }, []);
+  }, [email]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -23,6 +27,11 @@ const MyBlog = () => {
     const month = date.toLocaleString("default", { month: "long" });
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
+  };
+
+  const handleEdit = (blog) => {
+    dispatch(setSelectedBlog(blog));
+    nevigate("/addBlog");
   };
 
   return (
@@ -47,6 +56,9 @@ const MyBlog = () => {
             <p className="post-description">{post.description}</p>
           </div>
           <hr />
+          <button className="btn btn-primary" onClick={() => handleEdit(post)}>
+            Edit
+          </button>
         </div>
       ))}
     </div>
