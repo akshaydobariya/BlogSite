@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
-import AddBlogButton from "./AddBlogButton";
-import axios from "axios";
 import { useSelector } from "react-redux";
+import AddBlogButton from "../Blog/AddBlogButton";
+import axios from "axios";
 
 const MyBlog = () => {
-  const [blogPosts, setblogPosts] = useState();
+  const [blogPosts, setBlogPosts] = useState([]);
+  const { email } = useSelector((state) => state.login);
+
   useEffect(() => {
-    axios.get("http://localhost:14648/api/Blog/AllBlogs").then((response) => {
-      setblogPosts(response.data);
+    const apiUrl = `http://localhost:14648/api/Blog/MyBlogs?email=${encodeURIComponent(
+      email
+    )}`;
+
+    axios.get(apiUrl).then((response) => {
+      setBlogPosts(response.data);
     });
   }, []);
 
@@ -19,22 +25,27 @@ const MyBlog = () => {
     return `${day} ${month} ${year}`;
   };
 
-  const { email } = useSelector((state) => state.login);
-
   return (
     <div className="p-5">
       {email != null && <AddBlogButton />}
       <h2 className="m-3">Latest Blog Posts</h2>
-      {blogPosts?.map((post) => (
-        <div key={post.id}>
-          <h3>{post.title}</h3>
-
-          <p>
-            Posted by <strong>{post.userName}</strong> on{" "}
-            <strong>{formatDate(post.date)}</strong>
-          </p>
-          <p>{post.description}</p>
-
+      {blogPosts.map((post) => (
+        <div key={post.id} className="blog-post">
+          <div className="post-header">
+            <h3 className="post-title">{post.title}</h3>
+            <p className="post-date">
+              Posted by <strong>{post.userName}</strong> on{" "}
+              <strong>{formatDate(post.date)}</strong>
+            </p>
+          </div>
+          <div className="post-content">
+            <img
+              src={`http://localhost:14648/images/${post.imagePath}`}
+              alt="Blog Post"
+              className="logo-image"
+            />
+            <p className="post-description">{post.description}</p>
+          </div>
           <hr />
         </div>
       ))}
